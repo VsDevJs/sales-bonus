@@ -5,7 +5,7 @@
  * @returns {number}
  */
 function calculateSimpleRevenue(purchase, _product) { // purchase товар из массива с чеком;
-    const discount = +(1 - (purchase.discount / 100).toFixed(2)); // Остаток суммы без скидки;
+    const discount = 1 - (purchase.discount / 100); // Остаток суммы без скидки;
     return purchase.sale_price * purchase.quantity * discount; // Из массива чеков продаж. Считаем без учета скидки;
 }
 
@@ -36,12 +36,14 @@ function calculateBonusByProfit(index, total, seller) {
  * @param options
  * @returns {{revenue, top_products, bonus, name, sales_count, profit, seller_id}[]}
  */
+
 function analyzeSalesData(data, options) {
     console.log(options);
     if (!data || (!Array.isArray(data.sellers) || data.sellers.length === 0)
         || (!Array.isArray(data.products) || data.products.length === 0)
         || (!Array.isArray(data.purchase_records) || data.purchase_records.length === 0))
             throw new Error('Чего-то не хватает');
+
     // @TODO: Проверка входных данных
 
     // @TODO: Проверка наличия опций
@@ -79,25 +81,27 @@ function analyzeSalesData(data, options) {
     data.purchase_records.forEach(record => { // Чек
 
         const seller = sellerIndex[record.seller_id]; // Продавец
-
+    
         // Увеличить количество продаж
         seller.sales_count++;
 
         // Увеличить общую сумму всех продаж
-        seller.revenue += record.total_amount;
+        // seller.revenue += record.total_amount;
 
         // Расчёт прибыли для каждого товара
         record.items.forEach(item => {
-            const product = productIndex[item.sku]; // Взяли товар из массива с чеком
+            const product = productIndex[item.sku]; // Взяли товар из объекта productIndex;
 
             // Посчитать себестоимость (cost) товара как product.purchase_price, умноженную на количество товаров из чека
             const cost = product.purchase_price * item.quantity; // Себестоимость закупки;
 
             // Посчитать выручку (revenue) с учётом скидки через функцию calculateRevenue
-            seller.revenue += calculateRevenue(item, product);
-
+            const revenue = calculateRevenue(item, product);
+            seller.revenue += revenue; // верно;
+            
             // Посчитать прибыль: выручка минус себестоимость
-            const profit = seller.revenue - cost;
+            const profit = revenue - cost;
+
             seller.profit += profit;
             // Увеличить общую накопленную прибыль (profit) у продавца  
 
@@ -112,7 +116,7 @@ function analyzeSalesData(data, options) {
     // @TODO: Сортировка продавцов по прибыли
 
     sellerStats.sort((a, b) => {
-        return a.profit - b.profit;
+        return b.profit - a.profit;
     });
 
     // @TODO: Назначение премий на основе ранжирования
