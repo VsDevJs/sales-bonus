@@ -1,4 +1,4 @@
-https://github.com/username/sales-bonus
+https://github.com/VsDevJs/sales-bonus.git
 # Проектная работа "Пряники"
 5 спринт, модуль JS
 
