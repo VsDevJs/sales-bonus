@@ -38,7 +38,6 @@ function calculateBonusByProfit(index, total, seller) {
  */
 
 function analyzeSalesData(data, options) {
-    console.log(options);
     if (!data || (!Array.isArray(data.sellers) || data.sellers.length === 0)
         || (!Array.isArray(data.products) || data.products.length === 0)
         || (!Array.isArray(data.purchase_records) || data.purchase_records.length === 0))
@@ -86,7 +85,8 @@ function analyzeSalesData(data, options) {
         seller.sales_count++;
 
         // Увеличить общую сумму всех продаж
-        // seller.revenue += record.total_amount;
+        
+        seller.revenue += record.total_amount;
 
         // Расчёт прибыли для каждого товара
         record.items.forEach(item => {
@@ -96,8 +96,8 @@ function analyzeSalesData(data, options) {
             const cost = product.purchase_price * item.quantity; // Себестоимость закупки;
 
             // Посчитать выручку (revenue) с учётом скидки через функцию calculateRevenue
+
             const revenue = calculateRevenue(item, product);
-            seller.revenue += revenue; // верно;
             
             // Посчитать прибыль: выручка минус себестоимость
             const profit = revenue - cost;
@@ -124,7 +124,7 @@ function analyzeSalesData(data, options) {
         seller.bonus = calculateBonusByProfit(index, arr.length, seller); // Считаем бонус
         seller.products_sold = Object.entries(seller.products_sold).map(([key,quantity])=>{ return {key,quantity}}).sort((a,b)=>{
             return b.quantity - a.quantity;
-}).slice(0,10);
+        }).slice(0,10);
     });
     console.log(sellerStats);
     return sellerStats.map(seller => ({
